@@ -1,0 +1,15 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevents scrolling */
+  background-color: #b3986a; /* Gray color */
+}
+
+.navbar {
+  position: fixed;  /* Stays on top even when scrolling */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* Ensures it stays above other elements */
+}
