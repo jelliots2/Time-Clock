@@ -8,17 +8,19 @@
               <div class="mb-md-5 mt-md-4 pb-0">
                 <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
                 <p class="text-white-50 mb-5">Please enter your login and password!</p>
+                <form @submit.prevent="login">
                 <div data-mdb-input-init class="form-outline form-white mb-4">
-                  <input type="email" id="typeEmailX" class="form-control form-control-lg" />
+                  <input v-model="email" type="email" id="typeEmailX" class="form-control form-control-lg" />
                   <label class="form-label" for="typeEmailX">Email</label>
                 </div>
                 <div data-mdb-input-init class="form-outline form-white mb-4">
-                  <input type="password" id="typePasswordX" class="form-control form-control-lg" />
+                  <input v-model="password" type="password" id="typePasswordX" class="form-control form-control-lg" />
                   <label class="form-label" for="typePasswordX">Password</label>
                 </div>
-                <button data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-light btn-lg px-5"
-                  type="submit">Login</button>
+                <button type="submit" class="btn btn-outline-light btn-lg px-5">Login</button>
+              </form>
               </div>
+              <p v-if="error" class="text-danger mt-3">{{ error }}</p>
               <div>
                 <p class="mb-0">Don't have an account?
                   <router-link to="/register" class="text-white-50 fw-bold">Register</router-link>
@@ -37,19 +39,38 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "LoginPage",
   data() {
     return {
       email: "",
       password: "",
+      error: null,
     };
   },
   methods: {
-    handleSubmit() {
-      // Handle login logic here
-      console.log("Login attempted with", this.email, this.password);
+    async login() {
+      this.error = null;
+
+      try {
+        const response = await axios.post("http://localhost:5000/api/auth/login", {
+          email: this.email,
+          password: this.password,
+        });
+        //Save token to local storage. Can change to sessionStorage if needed.
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        
+        this.$router.push("/home");
+      } catch (err) {
+        this.error =
+          err.response?.data?.error || "Login failed. Please try again.";
+        console.error("Login Error:", this.error);
+      }
     },
   },
 };
+
 </script>

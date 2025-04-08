@@ -8,23 +8,19 @@
               <div class="mb-md-5 mt-md-4 pb-0">
                 <h2 class="fw-bold mb-2 text-uppercase">Register</h2>
                 <p class="text-white-50 mb-5">Please enter your first and last name, email, and password</p>
-
                 <form @submit.prevent="register">
                   <div class="form-outline form-white mb-4">
                     <input v-model="name" type="text" class="form-control form-control-lg" required />
                     <label class="form-label">Name</label>
                   </div>
-
                   <div class="form-outline form-white mb-4">
                     <input v-model="email" type="email" class="form-control form-control-lg" required />
                     <label class="form-label">Email</label>
                   </div>
-
                   <div class="form-outline form-white mb-4">
                     <input v-model="password" type="password" class="form-control form-control-lg" required />
                     <label class="form-label">Password</label>
                   </div>
-
                   <button class="btn btn-outline-light btn-lg px-5" type="submit">Register</button>
                 </form>
 

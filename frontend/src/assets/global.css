@@ -3,7 +3,8 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden; /* Prevents scrolling */
-  background-color: #b3986a; /* Gray color */
+  background-color: #b3986a; 
+  background-image: url("C:\Users\jelli\TimeClock\Time-Clock\frontend\src\assets\Background1.jpg");
 }
 
 .navbar {
@@ -12,4 +13,32 @@ html, body {
   left: 0;
   width: 100%;
   z-index: 1000; /* Ensures it stays above other elements */
+}
+
+/* logout button styles */
+.logout-btn:hover {
+  background-color: rgb(188, 69, 69);
+  color: white;
+  border-color: rgb(188, 69, 69);
+}
+
+.uniform-btn {
+  width: 200px; /* or whatever fixed width works */
+  text-align: center;
+}
+
+.clockin-btn:hover {
+  background-color: rgb(60, 184, 66);
+  color: white;
+  border-color: rgb(60, 184, 66);
+}
+
+.clockout-btn:hover {
+  background-color: rgb(188, 69, 69);
+  color: white;
+  border-color: rgb(188, 69, 69);
+}
+
+.clock-msg {
+  color: green;
 }

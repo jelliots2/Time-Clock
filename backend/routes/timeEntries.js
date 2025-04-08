@@ -5,19 +5,58 @@ import adminMiddleware from "../middleware/adminMiddleware.js";
 
 const router = express.Router();
 
-// Clock in: Create a time entry when the user clocks in
-router.post("/clockin", authMiddleware, async (req, res) => {
-  const userId = req.user.id;  // Use user ID from token
-  const clockInTime = new Date();
+router.get("/status", authMiddleware, async (req, res) => {
+  const userId = req.user.id;
 
   try {
-    const newTimeEntry = await pool.query(
-      "INSERT INTO time_entries (user_id, clock_in) VALUES ($1, $2) RETURNING id, user_id, clock_in",
+    // Get the latest clock-in entry where clock_out is NULL (still clocked in)
+    const timeEntry = await pool.query(
+      "SELECT clock_in FROM time_entries WHERE user_id = $1 AND clock_out IS NULL ORDER BY clock_in DESC LIMIT 1",
+      [userId]
+    );
+
+    // 💡 Add debug logs here:
+    console.log(`Checking clock-in status for user ${userId}`);
+    console.log("Active time entry:", timeEntry.rows);
+
+    if (timeEntry.rows.length > 0) {
+      res.json({
+        clocked_in: true,
+        time_entry: timeEntry.rows[0], // Or just clock_in_time: timeEntry.rows[0].clock_in
+      });
+    } else {
+      res.json({ clocked_in: false });
+    }
+  } catch (err) {
+    console.log("Database Error:", err);
+    res.status(500).json({ error: "Error fetching clock-in status" });
+  }
+});
+
+
+// Clock in: Create a time entry when the user clocks in
+router.post("/clockin", authMiddleware, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const activeEntry = await pool.query(
+      "SELECT * FROM time_entries WHERE user_id = $1 AND clock_out IS NULL",
+      [userId]
+    );
+
+    if (activeEntry.rows.length > 0) {
+      return res.status(400).json({ error: "User is already clocked in" });
+    }
+
+    const clockInTime = new Date();
+    const newEntry = await pool.query(
+      "INSERT INTO time_entries (user_id, clock_in) VALUES ($1, $2) RETURNING *",
       [userId, clockInTime]
     );
 
-    res.status(201).json(newTimeEntry.rows[0]); // Return the new time entry
+    res.status(201).json(newEntry.rows[0]);
   } catch (err) {
+    console.error("Clock In Error:", err);
     res.status(500).json({ error: "Error clocking in" });
   }
 });
@@ -52,7 +91,7 @@ router.post("/clockout", authMiddleware, async (req, res) => {
       total_time: totalTimeWorked // Add total_time field
     });
   } catch (err) {
-    console.log("Database Error:", err);
+    console.log("Clock Out Error:", err);
     res.status(500).json({ error: "Error clocking out" });
   }
 });
@@ -91,14 +130,14 @@ router.get("/:userId", authMiddleware, async (req, res) => {
     res.json(timeEntries.rows);
   } catch (err) {
     console.log("Database Error:", err);
-    res.status(500).json({ error: "Error fetching time entries "});
+    res.status(500).json({ error: "Error fetching time entries " });
   }
 });
 
 // Get time worked for the day/week for a user
 router.get("/summary/:userId", authMiddleware, async (req, res) => {
   const { userId } = req.params;
-  
+
   if (parseInt(userId) !== req.user.id) {
     return res.status(403).json({ error: "You can only view your own time summary" });
   }
@@ -125,5 +164,7 @@ router.get("/summary/:userId", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Error fetching time summary" });
   }
 });
+
+
 
 export default router;

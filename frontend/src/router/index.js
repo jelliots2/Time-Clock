@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-//import LandingPage from '../views/Landing.vue' //may be of use later, we'll see.
 import LoginPage from '../views/Login.vue';
 import RegisterPage from '../views/Register.vue'
 import HomePage from '../views/Home.vue';
@@ -16,7 +15,8 @@ const routes = [
   {
     path: '/home',
     name: 'Home',
-    component: HomePage
+    component: HomePage,
+    meta: { requiresAuth: true }
   },
   {
     path: '/register',
@@ -26,17 +26,20 @@ const routes = [
   {
     path: '/admin',
     name: 'Admin',
-    component: AdminPage
+    component: AdminPage,
+    meta: { requiresAuth: true }
   },
   {
     path: '/settings',
     name: 'Settings',
-    component: SettingsPage
+    component: SettingsPage,
+    meta: { requiresAuth: true }
   },
   {
     path: '/timesheet',
     name: 'Timesheet',
-    component: TimesheetPage
+    component: TimesheetPage,
+    meta: { requiresAuth: true }
   }
 ];
 
@@ -45,5 +48,14 @@ const router = createRouter({
   routes
 });
 
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = !!localStorage.getItem("token");
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next("/");
+  } else {
+    next();
+  }
+});
 
 export default router;
