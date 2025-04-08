@@ -7,18 +7,14 @@
             <div class="card-body p-5 text-center">
               <div class="mb-md-5 mt-md-4 pb-0">
                 <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
-                <p class="text-white-50 mb-5">Please enter your login and password!</p>
+                <p class="text-white-50 mb-5">Please enter your pin!</p>
                 <form @submit.prevent="login">
-                <div data-mdb-input-init class="form-outline form-white mb-4">
-                  <input v-model="email" type="email" id="typeEmailX" class="form-control form-control-lg" />
-                  <label class="form-label" for="typeEmailX">Email</label>
-                </div>
-                <div data-mdb-input-init class="form-outline form-white mb-4">
-                  <input v-model="password" type="password" id="typePasswordX" class="form-control form-control-lg" />
-                  <label class="form-label" for="typePasswordX">Password</label>
-                </div>
-                <button type="submit" class="btn btn-outline-light btn-lg px-5">Login</button>
-              </form>
+                  <div class="form-outline form-white mb-4">
+                    <input v-model="pinCode" type="text" id="typePinX" class="form-control form-control-lg" maxlength="4" required />
+                    <label class="form-label" for="typePinX">Pin Code</label>
+                  </div>
+                  <button type="submit" class="btn btn-outline-light btn-lg px-5">Login</button>
+                </form>
               </div>
               <p v-if="error" class="text-danger mt-3">{{ error }}</p>
               <div>
@@ -27,8 +23,7 @@
                 </p>
               </div>
               <div>
-                <p class="small pt-3 pb-lg-2"><a class="text-white-50">Forgot password? Please contact a manager.</a>
-                </p>
+                <p class="small pt-3 pb-lg-2"><a class="text-white-50">Forgot pin? Loser... Please contact a manager.</a></p>
               </div>
             </div>
           </div>
@@ -40,37 +35,35 @@
 
 <script>
 import axios from "axios";
+import { ref } from "vue";
+import { useRouter } from "vue-router";  // For routing
 
 export default {
-  name: "LoginPage",
-  data() {
-    return {
-      email: "",
-      password: "",
-      error: null,
-    };
-  },
-  methods: {
-    async login() {
-      this.error = null;
+  name: "Login",
+  setup() {
+    const pinCode = ref("");
+    const error = ref("");
+    const router = useRouter();  // Initialize Vue Router
 
+    const login = async () => {
       try {
         const response = await axios.post("http://localhost:5000/api/auth/login", {
-          email: this.email,
-          password: this.password,
+          pin_code: pinCode.value,  // Sending pin_code
         });
-        //Save token to local storage. Can change to sessionStorage if needed.
+
+        // Store the token and user info in localStorage
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
-        
-        this.$router.push("/home");
+
+        // Redirect to the home page using Vue Router
+        router.push("/home");  // Use Vue Router to navigate to the home page
       } catch (err) {
-        this.error =
-          err.response?.data?.error || "Login failed. Please try again.";
-        console.error("Login Error:", this.error);
+        console.error("Login failed:", err);
+        error.value = "Invalid pin code or user not found";
       }
-    },
+    };
+
+    return { pinCode, login, error };
   },
 };
-
 </script>

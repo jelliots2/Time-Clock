@@ -1,7 +1,7 @@
 import express from "express";
 import pool from "../db.js";
-import authMiddleware from "../middleware/authMiddleware.js"; // Use this instead of verifyToken
-import adminMiddleware from "../middleware/adminMiddleware.js"; // Use this instead of verifyAdmin
+import authMiddleware from "../middleware/authMiddleware.js"; 
+import adminMiddleware from "../middleware/adminMiddleware.js"; 
 
 const router = express.Router();
 
@@ -53,7 +53,6 @@ router.put("/:id", authMiddleware, adminMiddleware, async (req, res) => {
 
 // Admin view: Get all users (Admins only)
 router.get("/", adminMiddleware, async (req, res) => {
-  console.log(req.user);
   try {
     const allUsers = await pool.query("SELECT id, name, email, is_admin FROM users");
 
