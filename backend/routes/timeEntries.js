@@ -96,18 +96,6 @@ router.post("/clockout", authMiddleware, async (req, res) => {
   }
 });
 
-router.get("/all-time", adminMiddleware, async (req, res) => {
-  try {
-    const timeEntries = await pool.query(
-      "SELECT * FROM time_entries ORDER BY clock_in DESC"
-    );
-    res.json(timeEntries.rows);  // Return all time entries
-  } catch (err) {
-    console.log("Database Error:", err);
-    res.status(500).json({ error: "Error fetching all time entries" });
-  }
-});
-
 // Get all time entries for a user
 router.get("/:userId", authMiddleware, async (req, res) => {
   const { userId } = req.params;
@@ -165,6 +153,16 @@ router.get("/summary/:userId", authMiddleware, async (req, res) => {
   }
 });
 
-
+router.get("/all-time", adminMiddleware, async (req, res) => {
+  try {
+    const timeEntries = await pool.query(
+      "SELECT * FROM time_entries ORDER BY clock_in DESC"
+    );
+    res.json(timeEntries.rows);  // Return all time entries
+  } catch (err) {
+    console.log("Database Error:", err);
+    res.status(500).json({ error: "Error fetching all time entries" });
+  }
+});
 
 export default router;
